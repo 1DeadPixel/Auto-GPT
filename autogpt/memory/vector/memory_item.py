@@ -37,10 +37,13 @@ class MemoryItem:
         text: str,
         source_type: MemoryDocType,
         config: Config,
-        metadata: dict = {},
+        metadata: dict = None,
         how_to_summarize: str | None = None,
         question_for_summary: str | None = None,
     ):
+        if not metadata:
+            metadata = {}
+
         logger.debug(f"Memorizing text:\n{'-'*32}\n{text}\n{'-'*32}\n")
 
         chunks = [
@@ -153,7 +156,7 @@ class MemoryItem:
     def dump(self, calculate_length=False) -> str:
         if calculate_length:
             token_length = count_string_tokens(
-                self.raw_content, Config().embedding_model
+                self.raw_content, Config().build_config_from_env().embedding_model
             )
         return f"""
 =============== MemoryItem ===============

@@ -29,6 +29,7 @@ def get_embedding(
     Args:
         input: Input text to get embeddings for, encoded as a string or array of tokens.
             Multiple inputs may be given as a list of strings or token arrays.
+        config: The configuration file
 
     Returns:
         List[float]: The embedding.

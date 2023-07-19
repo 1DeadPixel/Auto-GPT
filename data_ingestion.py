@@ -1,12 +1,11 @@
-import argparse
 import logging
+import argparse
 
-from autogpt.commands.file_operations import ingest_file, list_files
-from autogpt.config import ConfigBuilder
+from autogpt.config import ConfigBuilder, Config
 from autogpt.memory.vector import VectorMemory, get_memory
+from autogpt.commands.file_operations import ingest_file, list_files
 
 config = ConfigBuilder.build_config_from_env()
-
 
 def configure_logging():
     logging.basicConfig(
@@ -21,18 +20,19 @@ def configure_logging():
     return logging.getLogger("AutoGPT-Ingestion")
 
 
-def ingest_directory(directory: str, memory: VectorMemory, args):
+def ingest_directory(directory: str, memory: VectorMemory, config: Config):
     """
     Ingest all files in a directory by calling the ingest_file function for each file.
 
     :param directory: The directory containing the files to ingest
     :param memory: An object with an add() method to store the chunks in memory
+    :param configs: Config file
     """
     logger = logging.getLogger("AutoGPT-Ingestion")
     try:
-        files = list_files(directory)
+        files = list_files(directory, config)
         for file in files:
-            ingest_file(file, memory, args.max_length, args.overlap)
+            ingest_file(file, memory, config)
     except Exception as e:
         logger.error(f"Error while ingesting directory '{directory}': {str(e)}")
 
@@ -77,13 +77,13 @@ def main() -> None:
 
     if args.file:
         try:
-            ingest_file(args.file, memory, args.max_length, args.overlap)
+            ingest_file(args.file, memory, config)
             logger.info(f"File '{args.file}' ingested successfully.")
         except Exception as e:
             logger.error(f"Error while ingesting file '{args.file}': {str(e)}")
     elif args.dir:
         try:
-            ingest_directory(args.dir, memory, args)
+            ingest_directory(args.dir, memory, config)
             logger.info(f"Directory '{args.dir}' ingested successfully.")
         except Exception as e:
             logger.error(f"Error while ingesting directory '{args.dir}': {str(e)}")

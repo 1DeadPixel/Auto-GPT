@@ -202,7 +202,7 @@ def test_read_file(
 
 def test_read_file_not_found(agent: Agent):
     filename = "does_not_exist.txt"
-    content = file_ops.read_file(filename, agent=agent)
+    content = file_ops.read_file(filename, config=agent.config)
     assert "Error:" in content and filename in content and "no such file" in content
 
 

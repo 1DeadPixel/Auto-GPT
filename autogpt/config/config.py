@@ -265,6 +265,7 @@ class ConfigBuilder(Configurable[Config]):
             "plugins_dir": os.getenv("PLUGINS_DIR"),
             "plugins_config_file": os.getenv("PLUGINS_CONFIG_FILE"),
             "chat_messages_enabled": os.getenv("CHAT_MESSAGES_ENABLED") == "True",
+            "workspace_path": os.getenv("WORKSPACE_PATH"),
         }
 
         config_dict["disabled_command_categories"] = _safe_split(
@@ -315,7 +316,6 @@ class ConfigBuilder(Configurable[Config]):
         config_dict_without_none_values = {
             k: v for k, v in config_dict.items() if v is not None
         }
-
         return cls.build_agent_configuration(config_dict_without_none_values)
 
     @classmethod

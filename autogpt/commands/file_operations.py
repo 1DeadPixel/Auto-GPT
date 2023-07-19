@@ -6,7 +6,6 @@ import os
 import os.path
 from typing import Generator, Literal
 
-from confection import Config
 
 from autogpt.agent.agent import Agent
 from autogpt.command_decorator import command
@@ -126,11 +125,12 @@ def log_operation(
         }
     },
 )
-def read_file(filename: str, agent: Agent) -> str:
+def read_file(filename: str, config: Config) -> str:
     """Read a file and return the contents
 
     Args:
         filename (str): The name of the file to read
+        config: The config file
 
     Returns:
         str: The contents of the file
@@ -139,7 +139,7 @@ def read_file(filename: str, agent: Agent) -> str:
         content = read_textual_file(filename, logger)
 
         # TODO: invalidate/update memory when file is edited
-        file_memory = MemoryItem.from_text_file(content, filename, agent.config)
+        file_memory = MemoryItem.from_text_file(content, filename, config)
         if len(file_memory.chunks) > 1:
             return file_memory.summary
 
@@ -151,22 +151,26 @@ def read_file(filename: str, agent: Agent) -> str:
 def ingest_file(
     filename: str,
     memory: VectorMemory,
+    config: Config
 ) -> None:
     """
     Ingest a file by reading its content, splitting it into chunks with a specified
     maximum length and overlap, and adding the chunks to the memory storage.
 
     Args:
-        filename: The name of the file to ingest
-        memory: An object with an add() method to store the chunks in memory
+        :filename The name of the file to ingest
+        :memory An object with an add() method to store the chunks in memory
+        :config The configuration file that specifies the max_chunk size and chunk overlap
     """
     try:
         logger.info(f"Ingesting file {filename}")
-        content = read_file(filename)
+        content = read_file(filename, config)
 
         # TODO: differentiate between different types of files
-        file_memory = MemoryItem.from_text_file(content, filename)
-        logger.debug(f"Created memory: {file_memory.dump(True)}")
+        file_memory = MemoryItem.from_text_file(content, filename, config)
+        # TODO: Fix config validations
+        logger.debug(f"Created memory: {file_memory.dump(False)}")
+
         memory.add(file_memory)
 
         logger.info(f"Ingested {len(file_memory.e_chunks)} chunks from {filename}")
@@ -301,11 +305,12 @@ def delete_file(filename: str, agent: Agent) -> str:
         }
     },
 )
-def list_files(directory: str, agent: Agent) -> list[str]:
+def list_files(directory: str, config: Config = None) -> list[str]:
     """lists files in a directory recursively
 
     Args:
         directory (str): The directory to search in
+        config: The configuration file.
 
     Returns:
         list[str]: A list of files found in the directory
@@ -317,7 +322,7 @@ def list_files(directory: str, agent: Agent) -> list[str]:
             if file.startswith("."):
                 continue
             relative_path = os.path.relpath(
-                os.path.join(root, file), agent.config.workspace_path
+                os.path.join(root, file)
             )
             found_files.append(relative_path)
 
