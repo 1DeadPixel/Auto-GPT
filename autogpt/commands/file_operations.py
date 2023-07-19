@@ -6,7 +6,6 @@ import os
 import os.path
 from typing import Generator, Literal
 
-
 from autogpt.agent.agent import Agent
 from autogpt.command_decorator import command
 from autogpt.commands.file_operations_utils import read_textual_file
@@ -148,11 +147,7 @@ def read_file(filename: str, config: Config) -> str:
         return f"Error: {str(e)}"
 
 
-def ingest_file(
-    filename: str,
-    memory: VectorMemory,
-    config: Config
-) -> None:
+def ingest_file(filename: str, memory: VectorMemory, config: Config) -> None:
     """
     Ingest a file by reading its content, splitting it into chunks with a specified
     maximum length and overlap, and adding the chunks to the memory storage.
@@ -321,9 +316,7 @@ def list_files(directory: str, config: Config = None) -> list[str]:
         for file in files:
             if file.startswith("."):
                 continue
-            relative_path = os.path.relpath(
-                os.path.join(root, file)
-            )
+            relative_path = os.path.relpath(os.path.join(root, file))
             found_files.append(relative_path)
 
     return found_files
